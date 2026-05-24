@@ -1,56 +1,64 @@
 "use client";
 
 import {
-  useEffect,
+ useEffect
 } from "react";
 
 import {
-  useRouter,
+ useRouter
 } from "next/navigation";
 
 import {
-  useAuth,
-} from "@/context/AuthContext";
+ useAuthStore
+} from "@/store/authStore";
 
 export default function ProtectedRoute({
-  children,
+ children,
 }: {
-  children: React.ReactNode;
+ children: React.ReactNode;
 }) {
-  const {
-    user,
-    loading,
-  } = useAuth();
 
-  const router =
-    useRouter();
+ const router =
+  useRouter();
 
-  useEffect(() => {
-    if (
-      !loading &&
-      !user
-    ) {
-      router.push(
-        "/login"
-      );
-    }
-  }, [
-    user,
-    loading,
-    router,
-  ]);
+ const user =
+  useAuthStore(
+   state => state.user
+  );
 
-  if (loading) {
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
-    );
-  }
+ const loading =
+  useAuthStore(
+   state => state.loading
+  );
 
-  if (!user) {
-    return null;
-  }
+ useEffect(() => {
 
-  return <>{children}</>;
+   if (
+     !loading &&
+     !user
+   ) {
+
+     router.push(
+      "/login"
+     );
+
+   }
+
+ }, [
+   user,
+   loading,
+   router
+ ]);
+
+ if (loading)
+   return (
+    <p className="p-10">
+      Loading...
+    </p>
+   );
+
+ if (!user)
+   return null;
+
+ return <>{children}</>;
 }

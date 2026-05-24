@@ -9,11 +9,35 @@ import {
 import { auth }
 from "@/firebase/config";
 
-export default function Register() {
+import {
+ useRouter
+} from "next/navigation";
 
- const [email,setEmail]=useState("");
- const [password,setPassword]=useState("");
- const [message,setMessage]=useState("");
+import {
+ useAuthStore
+} from "@/store/authStore";
+
+export default function RegisterPage() {
+
+ const router =
+  useRouter();
+
+ const setUser =
+  useAuthStore(
+   state => state.setUser
+  );
+
+ const [email,setEmail] =
+  useState("");
+
+ const [password,setPassword] =
+  useState("");
+
+ const [loading,setLoading] =
+  useState(false);
+
+ const [error,setError] =
+  useState("");
 
  const handleSubmit = async (
   e: React.FormEvent
@@ -23,22 +47,48 @@ export default function Register() {
 
   try {
 
-   await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
+   setLoading(true);
+
+   const result =
+    await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+   const firebaseUser =
+    result.user;
+
+   setUser({
+      uid: firebaseUser.uid,
+
+      email:
+       firebaseUser.email || "",
+
+      name:
+       firebaseUser.displayName ||
+       "User",
+   });
+
+   router.push(
+    "/dashboard"
    );
 
-   setMessage(
-    "Account created successfully"
-   );
+  } catch (err:any) {
 
-  } catch (error:any) {
-   setMessage(error.message);
+    setError(
+      err.message
+    );
+
+  } finally {
+
+    setLoading(false);
+
   }
  };
 
  return (
+
   <div className="p-10">
 
    <h1 className="text-3xl mb-5">
@@ -47,7 +97,7 @@ export default function Register() {
 
    <form
     onSubmit={handleSubmit}
-    className="flex flex-col gap-3 max-w-md"
+    className="flex flex-col gap-4 max-w-md"
    >
 
     <input
@@ -57,6 +107,7 @@ export default function Register() {
      onChange={(e)=>
       setEmail(e.target.value)}
      className="border p-2"
+     required
     />
 
     <input
@@ -66,17 +117,28 @@ export default function Register() {
      onChange={(e)=>
       setPassword(e.target.value)}
      className="border p-2"
+     required
     />
 
     <button
+     type="submit"
+     disabled={loading}
      className="bg-black text-white p-2"
     >
-     Register
+
+     {loading
+      ? "Creating Account..."
+      : "Register"}
+
     </button>
 
    </form>
 
-   <p>{message}</p>
+   {error && (
+    <p className="text-red-500 mt-4">
+      {error}
+    </p>
+   )}
 
   </div>
  );

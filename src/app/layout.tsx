@@ -1,20 +1,22 @@
 import "./globals.css";
-import {
-  AuthProvider,
-} from "@/context/AuthContext";
+
+import AuthInitializer
+from "@/components/AuthInitializer";
 
 export default function RootLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode;
+ children: React.ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
-    </html>
-  );
+ return (
+  <html lang="en">
+   <body>
+
+     <AuthInitializer />
+
+     {children}
+
+   </body>
+  </html>
+ );
 }
